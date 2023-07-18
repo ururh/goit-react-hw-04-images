@@ -30,7 +30,7 @@ const Modal = ({imgUrl, onClose}) => {
     return (
         <Overlay onClick={handleBackdropClick}>
             <ModalOpen>
-                <img src={imgUrl} />
+                <img src={imgUrl} alt="picture" />
             </ModalOpen>
         </Overlay>
     )
