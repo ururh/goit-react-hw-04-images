@@ -11,12 +11,13 @@ const App = () => {
   const [page, setPage] = useState(1);
   const [pictures, setPictures] = useState([]);
   const [status, setStatus] = useState('idle');
-  const [_, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [selectedImageUrl, setSelectedImageUrl] = useState('');
   const [loadMore, setLoadMore] = useState(null);
 
   const getInputValue = (value) => {
+    console.log(isLoading);
     setInputValue(value);
     setPage(1)
     setPictures([]);
