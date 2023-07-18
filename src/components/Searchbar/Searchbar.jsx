@@ -1,51 +1,47 @@
-import React, { Component } from 'react';
-import { ButtonLabel, Header, Input, SearchButton, SearchForm } from './Searchbar.styled';
-import PropTypes from 'prop-types'
+import React, { useState } from 'react';
+import PropTypes from 'prop-types';
+import { ButtonLabel, Header, Input, SearchButton, SearchForm} from './Searchbar.styled';
 
-class Searchbar extends Component {
-  state = {
-    inputValue: '',
+const Searchbar = ({ onSubmit }) => {
+  const [inputValue, setInputValue] = useState('');
+
+  const handleChange = (e) => {
+    setInputValue(e.currentTarget.value.toLowerCase());
   };
 
-  handleChange = (e) => {
-    this.setState({ inputValue: e.currentTarget.value.toLowerCase() });
-  };
-
-  handleSubmit = (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
-    if (this.state.inputValue.trim() === '') {
+    if (inputValue.trim() === '') {
       alert('Please enter something');
       return;
     }
-    this.props.onSubmit(this.state.inputValue);
-    this.setState({ inputValue: '' });
+    onSubmit(inputValue);
+    setInputValue('');
   };
 
-  render() {
-    return (
-      <Header>
-        <SearchForm onSubmit={this.handleSubmit}>
-          <SearchButton type="submit">
-            <ButtonLabel>Search</ButtonLabel>
-          </SearchButton>
+  return (
+    <Header>
+      <SearchForm onSubmit={handleSubmit}>
+        <SearchButton type="submit">
+          <ButtonLabel>Search</ButtonLabel>
+        </SearchButton>
 
-          <Input
-            value={this.state.inputValue}
-            onChange={this.handleChange}
-            type="text"
-            name="inputValue"
-            autoComplete="off"
-            autoFocus
-            placeholder="Search images and photos"
-          />
-        </SearchForm>
-      </Header>
-    );
-  }
-}
+        <Input
+          value={inputValue}
+          onChange={handleChange}
+          type="text"
+          name="inputValue"
+          autoComplete="off"
+          autoFocus
+          placeholder="Search images and photos"
+        />
+      </SearchForm>
+    </Header>
+  );
+};
 
 Searchbar.propTypes = {
-  onSubmit: PropTypes.func.isRequired,
-}
+  onSubmit: PropTypes.func.isRequired
+};
 
 export default Searchbar;

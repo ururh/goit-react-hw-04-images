@@ -1,39 +1,39 @@
 import PropTypes from "prop-types";
-import { React, Component } from 'react';
+import { React, useEffect } from 'react';
 import { ModalOpen, Overlay } from "./Modal.styled";
 
 
-class Modal extends Component { 
+const Modal = ({imgUrl, onClose}) => {
 
-    componentDidMount() {
-        window.addEventListener('keydown', this.handleKeydown);
-    }
+  useEffect(() => {
+    const handleKeydown = (event) => {
+      if (event.code === 'Escape') {
+        onClose();
+      }
+    };
 
-    componentWillUnmount() {
-        window.removeEventListener('keydown', this.handleKeydown)
-    }
+    window.addEventListener('keydown', handleKeydown);
 
-    handleKeydown = event => {
-        if (event.code === 'Escape') {
-            this.props.onClose();
-        }
-    }
+    return () => {
+      window.removeEventListener('keydown', handleKeydown);
+    };
+  }, [onClose]);
 
-    handleBackdropClick = event => {
+
+    const handleBackdropClick = event => {
         if (event.currentTarget === event.target) {
-            this.props.onClose();
+           onClose();
         }
     }
 
-    render() {
-        return (
-            <Overlay onClick={this.handleBackdropClick}>
-                <ModalOpen>
-                    <img src={this.props.imgUrl} alt="" />
-                </ModalOpen>
-            </Overlay>      
-        )
-    }
+
+    return (
+        <Overlay onClick={handleBackdropClick}>
+            <ModalOpen>
+                <img src={imgUrl} />
+            </ModalOpen>
+        </Overlay>
+    )
 };
 
 

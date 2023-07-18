@@ -1,91 +1,94 @@
+import React, { useState, useEffect } from 'react';
+import ImageGallery from 'components/ImageGallery/ImageGallery';
+import Loader from 'components/Loader/Loader';
+import Modal from 'components/Modal/Modal';
+import Searchbar from 'components/Searchbar/Searchbar';
+import getImages from 'services/api';
+import { AppDiv } from './App.styled';
 
-import ImageGallery from "components/ImageGallery/ImageGallery";
-import Loader from "components/Loader/Loader";
-import Modal from "components/Modal/Modal";
-import Searchbar from "components/Searchbar/Searchbar";
-import getImages from "services/api"
-import React, { Component } from "react";
-import { AppDiv } from "./App.styled";
+const App = () => {
+  const [inputValue, setInputValue] = useState('');
+  const [page, setPage] = useState(1);
+  const [pictures, setPictures] = useState([]);
+  const [status, setStatus] = useState('idle');
+  const [isLoading, setIsLoading] = useState(false);
+  const [showModal, setShowModal] = useState(false);
+  const [selectedImageUrl, setSelectedImageUrl] = useState('');
+  const [loadMore, setLoadMore] = useState(null);
 
-export class App extends Component {
-  state = {
-    inputValue: '',
-    page: 1,
-    pictures: [],
-    status: 'idle',
-    isLoading: null,
-    showModal: false,
-    selectedImageUrl: "",
-    loadMore: null,
-  }
+  const getInputValue = (value) => {
+    setInputValue(value);
+    setPage(1);
+    setPictures([]);
+  };
 
-  getInputValue = value => {
-    this.setState({ inputValue: value, page: 1, pictures: []})
+  const getLargeImgUrl = (imgUrl) => {
+    setSelectedImageUrl(imgUrl);
+    toggleModal();
+  };
+
+  const toggleModal = () => {
+    setShowModal(!showModal);
+  };
+
+  const fetchImages = () => {
+    
+    setIsLoading(true);
+
+    getImages(inputValue, page)
+      .then((data) => {
+        const { hits } = data;
+        if (hits.length === 0) {
+          setStatus('idle');
+          setIsLoading(false);
+        } else {
+          setPictures((prevPictures) => [...prevPictures, ...hits]);
+          setStatus('idle');
+          setLoadMore(12 - hits.length);
+          setIsLoading(false);
+        }
+      })
+      .catch((error) => {
+        console.error(error);
+        setStatus('error');
+        setIsLoading(false);
+      });
+  };
+
+  const handleLoadMore = () => {
+    setPage((prevPage) => prevPage + 1);
+    setStatus('loading')
+  };
+
+  useEffect(() => {
+    if (inputValue) {
+      fetchImages()
+    } else {
+      setPictures([])
     }
-    
-    getLargeImgUrl = imgUrl => {
-    this.setState({ selectedImageUrl: imgUrl });
-    this.toggleModal();
-  };    
-    
-toggleModal = () => {
-  this.setState((state) => ({
-    showModal: !state.showModal,
-  }));
-};
+  }, [page, inputValue]);
 
-fetchImages = () => {
-  const { inputValue, page } = this.state;
-
-  this.setState({ isLoading: true });
-
-  getImages(inputValue, page)
-    .then((data) => {
-      const { hits } = data;
-      if (hits.length === 0) {
-        this.setState({ status: 'idle', isLoading: false });
-      } else {
-        this.setState(prevState => ({
-          pictures: [...prevState.pictures, ...hits],
-          status: 'idle',
-          loadMore: 12 - hits.length,
-          isLoading: false
-        }));
-      }
-    })
-    .catch((error) => {
-      console.error(error);
-      this.setState({ status: 'error', isLoading: false });
-    });
-};
-
-    
-    handleLoadMore = () => {
-  this.setState(prevState => ({
-    page: prevState.page + 1,
-    status: 'loading',
-  }));
-};
-    
-  componentDidUpdate(_, prevState) {
-    if (
-      prevState.page !== this.state.page ||
-      prevState.inputValue !== this.state.inputValue
-    ) this.fetchImages();
-  }
-
-  render() {
-    return (
-      <AppDiv>
-            <Searchbar onSubmit={this.getInputValue} />
-             {this.state.status === 'loading' && <Loader />}
-            {this.state.status === 'error' && <p>Error occurred.</p>}
-            {this.state.showModal && <Modal imgUrl={this.state.selectedImageUrl} onClose={this.toggleModal} />}
-            <ImageGallery pictures={this.state.pictures} onLoadMore={this.handleLoadMore} onClick={this.getLargeImgUrl} loadMore={ this.state.loadMore} />
-             
-      </AppDiv>
-    );
-  }
+  return (
+    <AppDiv>
+      <Searchbar
+        onSubmit={getInputValue} />
+      {status === 'loading' && <Loader />}
+      {status === 'error' && <p>Error occurred.</p>}
+      {showModal && (
+        <Modal
+          imgUrl={selectedImageUrl}
+          onClose={toggleModal} />
+      )}
+      {inputValue && (
+        <ImageGallery
+          pictures={pictures}
+          onLoadMore={handleLoadMore}
+          onClick={getLargeImgUrl}
+          loadMore={loadMore}
+        />
+      )}
+    </AppDiv>
+  );
 }
 
 export default App;
