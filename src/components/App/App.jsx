@@ -18,7 +18,7 @@ const App = () => {
 
   const getInputValue = (value) => {
     setInputValue(value);
-    setPage(1);
+    setPage(1)
     setPictures([]);
   };
 
