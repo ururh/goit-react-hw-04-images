@@ -11,15 +11,16 @@ const App = () => {
   const [page, setPage] = useState(1);
   const [pictures, setPictures] = useState([]);
   const [status, setStatus] = useState('idle');
-  const [_, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [selectedImageUrl, setSelectedImageUrl] = useState('');
   const [loadMore, setLoadMore] = useState(null);
 
   const getInputValue = (value) => {
     setInputValue(value);
-    setPage(1)
+    setPage(1);
     setPictures([]);
+    console.log(isLoading);
   };
 
   const getLargeImgUrl = (imgUrl) => {
@@ -31,54 +32,48 @@ const App = () => {
     setShowModal(!showModal);
   };
 
-  const fetchImages = () => {
-    
-    setIsLoading(true);
-
-    getImages(inputValue, page)
-      .then((data) => {
-        const { hits } = data;
-        if (hits.length === 0) {
-          setStatus('idle');
-          setIsLoading(false);
-        } else {
-          setPictures((prevPictures) => [...prevPictures, ...hits]);
-          setStatus('idle');
-          setLoadMore(12 - hits.length);
-          setIsLoading(false);
-        }
-      })
-      .catch((error) => {
-        console.error(error);
-        setStatus('error');
-        setIsLoading(false);
-      });
-  };
-
-  const handleLoadMore = () => {
-    setPage((prevPage) => prevPage + 1);
-    setStatus('loading')
-  };
-
   useEffect(() => {
+    const fetchImages = () => {
+      setIsLoading(true);
+
+      getImages(inputValue, page)
+        .then((data) => {
+          const { hits } = data;
+          if (hits.length === 0) {
+            setStatus('idle');
+            setIsLoading(false);
+          } else {
+            setPictures((prevPictures) => [...prevPictures, ...hits]);
+            setStatus('idle');
+            setLoadMore(12 - hits.length);
+            setIsLoading(false);
+          }
+        })
+        .catch((error) => {
+          console.error(error);
+          setStatus('error');
+          setIsLoading(false);
+        });
+    };
+
     if (inputValue) {
-      fetchImages()
+      fetchImages();
     } else {
-      setPictures([])
+      setPictures([]);
     }
   }, [page, inputValue]);
 
+  const handleLoadMore = () => {
+    setPage((prevPage) => prevPage + 1);
+    setStatus('loading');
+  };
+
   return (
     <AppDiv>
-      <Searchbar
-        onSubmit={getInputValue} />
+      <Searchbar onSubmit={getInputValue} />
       {status === 'loading' && <Loader />}
       {status === 'error' && <p>Error occurred.</p>}
-      {showModal && (
-        <Modal
-          imgUrl={selectedImageUrl}
-          onClose={toggleModal} />
-      )}
+      {showModal && <Modal imgUrl={selectedImageUrl} onClose={toggleModal} />}
       {inputValue && (
         <ImageGallery
           pictures={pictures}
@@ -89,6 +84,6 @@ const App = () => {
       )}
     </AppDiv>
   );
-}
+};
 
 export default App;
