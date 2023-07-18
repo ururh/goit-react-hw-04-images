@@ -20,7 +20,6 @@ const App = () => {
     setInputValue(value);
     setPage(1);
     setPictures([]);
-    console.log(isLoading);
   };
 
   const getLargeImgUrl = (imgUrl) => {
